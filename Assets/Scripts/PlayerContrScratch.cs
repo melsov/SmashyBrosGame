@@ -2,7 +2,7 @@
 using UnityEngine.Assertions;
 using System.Collections;
 
-public class PlayerControls : MonoBehaviour {
+public class PlayerContrScratch : MonoBehaviour {
 
     protected Rigidbody rb;
     protected Transform fist;
@@ -20,67 +20,59 @@ public class PlayerControls : MonoBehaviour {
     public float punchTimeSeconds = .3f;
     protected float punchTimer;
     private float punchMassTax = .2f;
+    private float reactToAPunchTime = 0f;
     private float punchDirection;
     public float punchSensitivity = 5f;
     public float sensitivityIncrement = 5f;
-    private float reactToAPunchTime;
 
     void Awake () {
-        rb = GetComponentInChildren<Rigidbody>();
+        //TODO: use GetComponent to set rb to the rigidbody
+        //rb = ...
 
+        // look through all children of the player game object
+        // find the one with the "Fist" tag
         foreach(Transform t in GetComponentsInChildren<Transform>()) {
             if (t.CompareTag("Fist")) {
                 fist = t;
                 break;
             }
         }
+        //be paranoid: make a fuss if we didn't find a transform with the "Fist" tag
         Assert.IsTrue(fist != null, "oh no. we didn't find our fist transform!");
-        fist.gameObject.SetActive(false);
+
+        //hide the fist
+        //TODO: set the fist's game object to inactive
+
 
         if (isPlayerOne) {
             horizontal = "Horizontal";
             jumpKey = KeyCode.W;
             punchKey = KeyCode.E;
         } else {
-            horizontal = "Horizontal2";
-            jumpKey = KeyCode.I;
-            punchKey = KeyCode.O;
+           // TODO: if this is player two
+           // set horizontal to "Horizontal2"
+           // set jumpKey to I
+           // punchKey to E
         }
 	}
 	
 	void Update () {
-        if (grounded) {
-            if (Input.GetKeyDown(jumpKey)) {
-                rb.AddForce(new Vector3(0f, jumpHeight, 0f), ForceMode.Force);
-                grounded = false;
-            }
-        }
-        rb.AddForce(new Vector3(Input.GetAxis(horizontal) * moveSpeed, 0f, 0f), ForceMode.Force);
-        Vector3 vel = rb.velocity;
-        vel.x = Mathf.Clamp(vel.x, -1f * maxMoveSpeed, maxMoveSpeed);
-        rb.velocity = vel;
+        // TODO: if grounded is true
+        // and if the jump key is down...
+        //     add an upward force to the rb. The force should be equal to 'jumpHeight' in the vertical direction and zero in the other directions
+        //     set grounded to false
 
-        if (Mathf.Abs(Input.GetAxis(horizontal)) > Mathf.Epsilon) {
-            float yAxisRotation = 90f - ( Mathf.Sign(Input.GetAxis(horizontal)) * 90f);
-            print(yAxisRotation);
-            rb.MoveRotation(Quaternion.Euler(0f, yAxisRotation, 0f));
-            //transform.rotation = Quaternion.Euler(0f, yAxisRotation, 0f);
-        }
+        //TODO: add a horizontal force that's proportional to horizontal axis input * moveSpeed 
+        //(no need for an if statement with this one: if the player isn't pressing either of the horizontal keys
+        //Input.GetAxis() will return zero and you'll go nowhere)
+
+        //TODO: set a speed limit for horizontal movement.
+        // find out what the current velocity of the rb is: put the current rb.velocity into a new vec3 called vel
+        // look up Mathf.Clamp in Unity's online documentation and ...
+        // use it to set vel.x to either itself or
+        // -maxMoveSpeed if it's less than -maxMoveSpeed, +maxMoveSpeed if it's greater than +maxMoveSpeed.
 
 
-
-        if (reactToAPunchTime > 0f) {
-            rb.AddForce(new Vector3(punchDirection * (punchPower + punchSensitivity) * Time.deltaTime * 20f, 0f, 0f), ForceMode.Force);
-            reactToAPunchTime -= Time.deltaTime;
-        }
-
-        float timeSinceLast = Time.fixedTime - punchTimer;
-        if (timeSinceLast > punchTimeSeconds) {
-            fist.gameObject.SetActive(false);
-            if (Input.GetKeyDown(punchKey)) {
-                punch();
-            }
-        }
 	}
 
     protected void punch() {
@@ -106,7 +98,7 @@ public class PlayerControls : MonoBehaviour {
     protected void getPunched(Transform fist) {
         Vector3 difference = transform.position - fist.position;
         punchDirection = Mathf.Sign(difference.x);
-        reactToAPunchTime = .2f;
+        reactToAPunchTime = .3f;
         punchSensitivity += sensitivityIncrement;
     }
 }
